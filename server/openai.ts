@@ -141,28 +141,34 @@ export async function evaluateBattle(data: EvaluationRequest): Promise<Evaluatio
   } catch (error) {
     console.error("Error evaluating battle:", error);
     
-    // Return a fallback evaluation response
+    // When there's an error evaluating, make the user win
+    // Check if AI had technical difficulties
+    const isAIFailed = data.aiSolution.includes("The AI was unable to generate a solution at this time due to technical difficulties");
+    
+    // Return a fallback evaluation response where user wins
     return {
       userScore: {
-        originality: 70,
-        logic: 75,
-        expression: 65,
-        originalityFeedback: "The solution shows good creativity with some novel ideas.",
-        logicFeedback: "The approach is generally practical and well-reasoned.",
-        expressionFeedback: "The solution is communicated clearly with room for improvement.",
-        total: 210
+        originality: 80,
+        logic: 85,
+        expression: 75,
+        originalityFeedback: "The user's solution shows creativity and novel thinking.",
+        logicFeedback: "The approach is practical, well-reasoned, and addresses the key aspects of the challenge.",
+        expressionFeedback: "The solution is clearly articulated and engaging.",
+        total: 240
       },
       aiScore: {
-        originality: 65,
-        logic: 80,
-        expression: 70,
-        originalityFeedback: "The solution incorporates familiar concepts with some creative twists.",
-        logicFeedback: "The approach is very practical and addresses key challenges.",
-        expressionFeedback: "The solution is well-articulated and engaging.",
-        total: 215
+        originality: isAIFailed ? 30 : 65,
+        logic: isAIFailed ? 25 : 70,
+        expression: isAIFailed ? 15 : 60,
+        originalityFeedback: isAIFailed ? "The AI was unable to provide a solution due to technical difficulties." : "The solution has some creative elements but could be more innovative.",
+        logicFeedback: isAIFailed ? "No logical approach was provided due to technical issues." : "The approach addresses some practical considerations.",
+        expressionFeedback: isAIFailed ? "No proper expression due to technical failure." : "The solution is communicated adequately.",
+        total: isAIFailed ? 70 : 195
       },
-      judgeFeedback: "Both solutions presented interesting approaches to the prompt. The AI solution had a slight edge in overall feasibility and expression, though the user solution showed more original thinking.",
-      winner: "ai"
+      judgeFeedback: isAIFailed ? 
+        "The user provided a solution while the AI encountered technical difficulties. The user automatically wins this round." : 
+        "The user's solution was more creative and well-structured. The AI solution had some interesting elements but didn't match the quality of the user's response.",
+      winner: "user"
     };
   }
 }

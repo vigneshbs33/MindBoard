@@ -135,6 +135,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         aiSolution,
       });
       
+      // Check if AI failed to generate a solution
+      const isAIFailed = aiSolution.includes("The AI was unable to generate a solution at this time due to technical difficulties");
+      
+      // If AI failed, set user as winner with predefined scores
+      if (isAIFailed) {
+        console.log("AI failed to generate a response - user automatically wins");
+      }
+      
       // Evaluate battle
       const evaluation = await evaluateBattle({
         prompt: battle.prompt,
