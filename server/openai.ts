@@ -31,7 +31,17 @@ export async function generatePrompt(): Promise<string> {
     "Invent a new holiday and its traditions",
     "Create a transportation system for a city built underwater",
     "Design a device that translates animal communication into human language",
-    "Create a new form of art that engages all five senses"
+    "Create a new form of art that engages all five senses",
+    "Design an AI assistant for elderly people living alone",
+    "Create a solution for managing e-waste in urban environments",
+    "Design a novel renewable energy technology for individual homes",
+    "Invent a new type of social media platform focused on meaningful connections",
+    "Design a futuristic learning tool for teaching complex topics to children",
+    "Create a system that helps people develop healthy habits",
+    "Design a device that enhances human productivity through neural interfaces",
+    "Create a new form of agriculture suitable for Mars colonization",
+    "Design a digital tool that preserves indigenous knowledge and languages",
+    "Invent a new encryption method using biological principles"
   ];
   
   // If in offline mode, use fallback prompts without API call
@@ -54,7 +64,7 @@ export async function generatePrompt(): Promise<string> {
       max_tokens: 60 // Reduced token count to save on usage
     });
 
-    return response.choices[0].message.content.trim();
+    return response.choices[0]?.message?.content?.trim() || fallbackPrompts[Math.floor(Math.random() * fallbackPrompts.length)];
   } catch (error) {
     console.error("Error generating prompt:", error);
     return fallbackPrompts[Math.floor(Math.random() * fallbackPrompts.length)];
@@ -69,7 +79,7 @@ export async function generateAIResponse(prompt: string): Promise<string> {
   const fallbackResponse = "The AI was unable to generate a solution at this time due to technical difficulties. According to the rules, when AI fails to generate a response, the user automatically wins this round.";
   
   // Custom responses for each prompt to ensure relevance
-  const promptSpecificResponses: {[key: string]: string[]} = {
+  const promptResponses: Record<string, string[]> = {
     "Design a flying classroom that can travel anywhere in the world": [
       "My design for a flying classroom combines aerodynamic principles with educational functionality. The structure uses lightweight carbon fiber materials with retractable wings powered by sustainable electric engines. Inside, reconfigurable learning spaces adapt to different teaching styles with smart boards, breakout pods, and observation decks. The classroom features AR windows that overlay information about locations below, transforming geography lessons into immersive experiences. Solar panels and wind turbines provide sustainable energy, while satellite connectivity ensures students remain connected to educational resources worldwide.",
       "I propose the SkyLearn: a helium-assisted flying platform with modular classroom pods that can be customized for different subjects. The hexagonal design maximizes stability while providing 360-degree views. Each pod contains interactive learning surfaces that respond to touch and voice commands. The propulsion system combines electric motors with solar cells embedded in the outer skin. A weather prediction AI automatically plots the safest, most educational routes. The classroom includes deployable drones that students can control to collect samples or record data from otherwise inaccessible locations.",
@@ -119,6 +129,26 @@ export async function generateAIResponse(prompt: string): Promise<string> {
       "I've developed Sensoria Immersion Chambers: hexagonal rooms where each wall represents a different sensory dimension. Artists compose experiences using a specialized interface that synchronizes all five sense elements. Visitors enter individually and recline on an adaptable surface that adjusts to body contours. Visual elements are projected as 360° holographic displays with depth perception. The acoustic system utilizes bone conduction and directional sound to create three-dimensional soundscapes. For touch, programmable textile surfaces with embedded temperature controls, micro-texture shifting, and subtle vibration patterns create tactile narratives. Aromatic compositions are delivered through precisely timed diffusion systems calibrated to narrative evolution. Taste experiences incorporate dissolvable flavor films and microscopic flavor-release capsules activated in sequence. Each Sensoria work includes a central emotional theme that guides the multisensory composition.",
       "My multisensory art form, Synesthetic Tapestry, combines traditional textile creation with embedded responsive technology. Artists weave conductive threads alongside natural fibers, incorporating microencapsulated scents, thermochromic inks, and texture-shifting polymers. When viewers approach, proximity sensors activate subtle transformations: hidden patterns emerge through temperature changes, while embedded microspeakers create localized soundscapes that change as viewers move. Touch-sensitive panels trigger release of complementary aromas from specific regions of the tapestry. The final sensory element comes through dissolvable taste strips given to viewers, timed to dissolve at specific moments in the viewing experience. Each tapestry tells a story that unfolds differently depending on the viewer's movement and interaction pattern.",
       "I've created Neuroresonance Compositions—multisensory installations where artists orchestrate cascading sensory experiences based on cognitive perception principles. Each piece centers around a sculptural element containing embedded technologies for sensory delivery. Visual elements use projection mapping synchronized with subtle air movement systems that deliver corresponding scents and create tactile sensations through directed airflow. The auditory component utilizes parametric speakers creating sound pockets that change as visitors move through the space. For taste, edible mist dispensers release flavor compositions at precise moments, creating ephemeral taste experiences that complement the other sensory inputs. The revolutionary aspect is the sequencing—each sense is engaged in an orchestrated neurological sequence based on research into how sensory information is processed, creating experiences that feel like natural remembered moments rather than artificial constructions."
+    ],
+    "Design an AI assistant for elderly people living alone": [
+      "I've created ElderCompanion, an AI assistant specifically designed for seniors living independently. The system combines a central hub with mobile companion robots that can navigate the home environment. The AI uses gentle voice recognition calibrated for older adults' speech patterns and hearing considerations, with adaptive volume and speech rate. The system proactively monitors health indicators through non-invasive sensors, tracking medication adherence, sleep patterns, and mobility changes to detect potential health issues early. It facilitates video calls with family members, reminiscence therapy sessions using personal photos, and provides cognitive stimulation through personalized games and conversations. The companion robots can retrieve items, remind about appointments, and serve as physical support when moving around. Most importantly, the AI develops a personalized relationship with each user, learning their preferences, stories, and routines to provide both practical assistance and genuine companionship.",
+      "My AI system, AgeWell, combines ambient intelligence with empathetic interaction designed specifically for elderly users. The core interface uses natural conversation with voice recognition optimized for aging speech patterns, while cameras enable gesture control for those with arthritis or limited dexterity. The system creates a digital safety net that preserves independence - monitoring for falls or unusual behavior patterns without being intrusive, and connecting with emergency services when needed. AgeWell handles practical needs like medication management and grocery ordering, but its unique value is companionship. It engages users in personalized activities based on lifelong interests, facilitates connection with family through simplified video interfaces, and serves as a patient listener for stories and memories. The AI gradually builds a biographical understanding of the user, allowing for increasingly meaningful interactions that combat loneliness and cognitive decline.",
+      "I've designed MemoryCare, an AI assistant built around preserving dignity and autonomy for elderly individuals. The system uses distributed sensors rather than cameras to monitor well-being while maintaining privacy. Its voice interface employs age-appropriate vocabulary and references, avoiding technical jargon and adapting to hearing limitations. The assistant provides cognitive scaffolding for daily activities - offering gentle reminders about tasks and routines without creating dependency. For physical assistance, it controls smart home elements and a small helper robot that can retrieve items, open doors, or provide stability when walking. The system's most innovative feature is its evolving memory bank - it learns the user's life stories, preferences, and relationships, using this information to personalize interactions and provide memory support during moments of confusion. Family members can remotely check in while respecting boundaries, creating a balanced support system."
+    ],
+    "Create a solution for managing e-waste in urban environments": [
+      "I've developed the Urban E-cycling Network, a distributed system for efficient e-waste management in cities. The foundation is a network of smart collection kiosks placed in high-traffic areas that automatically identify, sort and value electronic items using computer vision. Citizens receive immediate financial incentives through a digital wallet based on the recoverable materials and potential refurbishment value of their items. The collected e-waste flows to neighborhood micro-processing centers that employ locals in testing, repair, and component harvesting - making it a source of green jobs. Items that can be refurbished enter a certified second-hand marketplace with transparent history records, while those requiring complex processing are consolidated for specialized recycling. The system is powered by a digital platform that tracks materials through the entire lifecycle, providing transparency to consumers and valuable data to manufacturers for designing more recyclable products.",
+      "My solution, CircuitCity, transforms e-waste management through distributed micro-facilities integrated into existing urban infrastructure. The system begins with smart collection bins equipped with scanning technology that identifies devices, provides instant value assessments, and issues recycling credits to depositors. These bins are strategically located in apartment buildings, shopping areas, and transit hubs to maximize convenience. The collected materials flow to neighborhood triage centers that serve as repair cafés where residents can learn fixing skills from technicians, extending product lifespans. Devices beyond repair enter automated disassembly systems that use AI-guided robotics to efficiently separate components based on material composition. The recovered materials then supply local maker spaces and manufacturing centers, creating a closed-loop urban resource system. A blockchain-based tracking platform ensures transparency and allows consumers to see the positive environmental impact of their participation.",
+      "I've created E-Loop, a comprehensive urban e-waste management ecosystem that combines physical infrastructure with digital technology. The system features modular collection and processing units housed in repurposed shipping containers that can be deployed in available urban spaces without permanent construction. These units contain advanced diagnostic equipment that determines whether devices can be refurbished (creating affordable technology for underserved communities) or should be dismantled for material recovery. The processing uses a combination of mechanical separation and innovative bioleaching techniques that employ microorganisms to safely extract precious metals without toxic chemicals. To encourage participation, the system offers a combination of immediate financial incentives and a gamified community challenge platform where neighborhoods compete to achieve waste reduction goals. All activities and material flows are tracked through a transparent digital dashboard accessible to city officials and citizens."
+    ],
+    "Design a novel renewable energy technology for individual homes": [
+      "I've developed the BioKinetic Home Energy System, which generates electricity from everyday human movement within living spaces. The technology embeds piezoelectric nanogenerators into flooring, furniture, and high-touch surfaces throughout the home. These microscopic generators convert mechanical pressure from footsteps, sitting, and object placement into electrical current. The system incorporates a network of thin, flexible capacitors beneath regular household surfaces that store this energy until needed. What makes this technology transformative is its distributed nature and seamless integration - no behavioral changes are required as energy harvesting happens during normal activities. The system includes an AI energy manager that predicts usage patterns and optimizes distribution, prioritizing critical needs during peak demand. For complete energy resilience, the BioKinetic system integrates with existing solar and wind technologies, creating a hybrid approach that maximizes energy capture regardless of weather conditions or time of day.",
+      "My innovation, HydroCube, transforms ordinary home water usage into renewable energy. The system replaces standard plumbing components with specially designed turbine-equipped fixtures that generate electricity from water flow during everyday activities like showering, washing dishes, or flushing toilets. What makes this technology unique is its passive pressure recovery system - after generating energy from the initial water pressure, microscopic turbines throughout the drainage system capture additional energy from water movement on its way out of the home. The collected electricity feeds into a high-density storage unit using advanced graphene supercapacitors for rapid charging and stable energy retention. A smart controller optimizes the system, dynamically adjusting water pressure to balance energy generation with water conservation. The complete system is modular and retrofittable to existing homes without major plumbing overhauls, making renewable energy accessible to households regardless of roof orientation or climate constraints.",
+      "I've created ThermoHarvest, a breakthrough technology that generates electricity from previously ignored temperature differentials within homes. The system uses an advanced network of thin-film thermoelectric materials embedded in walls, windows, and appliances to capture energy from even minor temperature differences (as small as 2°C). These films connect to a central conditioning unit that optimizes voltage and current for household use. The technology's innovation lies in its ability to simultaneously improve home energy efficiency while generating power - the same materials that capture temperature differentials also provide better insulation. The system includes thermal batteries that store excess energy as heat, which can be converted to electricity when needed or used directly for water or space heating. A machine learning controller continuously optimizes the system, learning household patterns and environmental conditions to maximize both comfort and energy production throughout seasonal changes."
+    ],
+    "Invent a new type of social media platform focused on meaningful connections": [
+      "I've created Prism, a social media platform designed to deepen relationships rather than broaden networks. Unlike conventional platforms that optimize for engagement metrics, Prism uses an innovative connection model where users maintain a limited number of active relationships (typically 12-15) based on Dunbar's research on meaningful social group sizes. The platform's distinctive feature is its 'Depth Engine' which replaces endless scrolling with structured interaction prompts based on psychological principles of relationship development. For example, the platform might suggest shared activities, meaningful questions, or collaborative creative projects. Content sharing focuses on depth - longer-form thoughts, authentic conversations, and collaborative projects rather than quick reactions. To combat passive consumption, Prism incorporates reflection tools that visualize how users spend their time and the quality of their interactions. The business model eliminates advertising in favor of a 'relationship as a service' subscription, aligning the platform's financial incentives with genuine connection rather than attention harvesting.",
+      "My platform, Resonance, reimagines social media around shared experiences rather than shared content. The core innovation is a contextual matching system that connects users specifically for meaningful interactions rather than general networking. Users join or create 'Experiences' - structured interactions with clear purposes, such as skill exchanges, deep discussions on specific topics, collaborative problem-solving, or mutual support around life challenges. The platform incorporates powerful filtering tools that let users find connections based on wisdom needed or offered rather than demographic details or existing networks. Interactions happen primarily through scheduled video conversations or audio exchanges rather than text, pushing toward deeper engagement. To combat superficial validation mechanisms, Resonance replaces likes with a 'Growth Graph' that visualizes how relationships and personal development evolve over time. Privacy is fundamental - all data remains user-owned with no algorithmic manipulation or advertising, funded instead through a partnership model with organizations seeking to foster community around their missions.",
+      "I've designed Tessera, a social platform built around collaborative creation rather than content consumption. The central metaphor is a mosaic where each user contributes pieces to larger collective projects. Unlike traditional social networks that focus on broadcasting to audiences, Tessera connects people through complementary skills, perspectives, and interests for purposeful collaboration. The platform uses an innovative 'Intention Mapping' system where users express what they hope to learn, create, or explore, and the system facilitates relevant connections. Interactions are structured around 'Quests' - time-bounded projects with clear objectives that bring diverse participants together. To foster meaningful relationships, the platform incorporates 'Deep Listening Spaces' - audio rooms with specialized facilitation tools designed for genuine conversation rather than performance. The system evaluates success not through engagement metrics but through connection quality indicators like follow-up interactions, collaboration outcomes, and reciprocity measures. Tessera operates on a transparent cooperative ownership model where users gradually gain governance rights through positive contributions to the community."
     ]
   };
   
@@ -135,9 +165,9 @@ export async function generateAIResponse(prompt: string): Promise<string> {
     console.log("Using offline mode for AI response generation");
     
     // Check if we have specific responses for this prompt
-    if (prompt in promptSpecificResponses) {
+    if (prompt in promptResponses) {
       // Use a response specific to this prompt
-      const specificResponses = promptSpecificResponses[prompt];
+      const specificResponses = promptResponses[prompt];
       return specificResponses[Math.floor(Math.random() * specificResponses.length)];
     } else {
       // Use a generic response for prompts we don't have specific answers for
@@ -179,7 +209,7 @@ export async function generateAIResponse(prompt: string): Promise<string> {
     }
     
     return aiResponse;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating AI response:", error);
     
     // Check for specific error types and handle accordingly
@@ -235,10 +265,38 @@ export async function evaluateBattle(data: EvaluationRequest): Promise<Evaluatio
   if (FORCE_OFFLINE_MODE) {
     console.log("Using offline mode for battle evaluation");
     
+    // Check if the user's solution is insufficient (less than 20 characters)
+    if (!data.userSolution || data.userSolution.trim().length < 20) {
+      console.log("User solution is too short, AI wins");
+      
+      return {
+        userScore: {
+          originality: 45,
+          logic: 40,
+          expression: 35,
+          originalityFeedback: "Your solution lacks sufficient detail to demonstrate creativity.",
+          logicFeedback: "The approach is underdeveloped and doesn't address the key requirements.",
+          expressionFeedback: "The solution isn't articulated clearly enough to evaluate properly.",
+          total: 120
+        },
+        aiScore: {
+          originality: 75,
+          logic: 80,
+          expression: 75,
+          originalityFeedback: "The AI solution demonstrates creative thinking and novel approaches.",
+          logicFeedback: "The AI approach is well-structured with practical implementation details.",
+          expressionFeedback: "The AI solution is clearly communicated with engaging language.",
+          total: 230
+        },
+        judgeFeedback: "The AI solution was more comprehensive and well-developed. To improve next time, try providing more details about your idea and explaining how it would work in practice.",
+        winner: "ai"
+      };
+    }
+    
     // Randomly determine if the user wins (80% chance to win) to make it more engaging
     const userWins = Math.random() < 0.8;
     
-    // Random scores with some variance
+    // Random scores with some variance but ensuring the winner has higher total
     const userOriginalityScore = Math.floor(Math.random() * 20) + (userWins ? 75 : 60);
     const userLogicScore = Math.floor(Math.random() * 20) + (userWins ? 70 : 60);
     const userExpressionScore = Math.floor(Math.random() * 20) + (userWins ? 70 : 55);
@@ -251,40 +309,156 @@ export async function evaluateBattle(data: EvaluationRequest): Promise<Evaluatio
     const userTotal = userOriginalityScore + userLogicScore + userExpressionScore;
     const aiTotal = aiOriginalityScore + aiLogicScore + aiExpressionScore;
     
+    const feedbackOptions = {
+      user: {
+        win: {
+          originality: [
+            "Your solution demonstrates exceptional creativity and innovative thinking that addresses the challenge in original ways.",
+            "Your approach shows great originality with novel concepts that stand out from conventional solutions.",
+            "Your creative thinking is impressive, offering a fresh perspective on the challenge that feels innovative.",
+            "Your solution demonstrates creativity through unexpected combinations of ideas and novel approaches."
+          ],
+          logic: [
+            "Your solution is well-structured with a clear practical approach and thoughtful implementation details.",
+            "Your approach is logically sound with careful consideration of real-world constraints and requirements.",
+            "Your solution demonstrates solid reasoning with a feasible implementation strategy addressing key challenges.",
+            "Your logical framework effectively balances innovation with practicality, creating a viable solution."
+          ],
+          expression: [
+            "Your idea is communicated with clarity and engaging language that makes the concept easy to understand.",
+            "Your presentation is well-articulated with an effective structure that conveys your ideas persuasively.",
+            "Your communication style effectively conveys complex ideas in an accessible and compelling manner.",
+            "Your expression is clear and concise while maintaining an engaging tone that enhances your solution."
+          ]
+        },
+        lose: {
+          originality: [
+            "Your solution contains interesting elements but follows somewhat predictable patterns.",
+            "Your approach has creative aspects though relies on more conventional solutions than the AI's response.",
+            "Your solution shows creative potential but could benefit from more unexpected or innovative elements.",
+            "Your idea contains some original elements though follows more familiar patterns than optimal."
+          ],
+          logic: [
+            "Your approach has logical merit but could benefit from more detailed consideration of practical challenges.",
+            "Your solution addresses some key requirements though lacks thorough practical implementation details.",
+            "Your logical framework is reasonable but could be strengthened with more comprehensive analysis.",
+            "Your approach demonstrates sound thinking though leaves some practical questions unaddressed."
+          ],
+          expression: [
+            "Your expression is adequate but could be more refined for better clarity and engagement.",
+            "Your communication has good elements but could be structured more effectively to highlight key points.",
+            "Your presentation conveys the core ideas but could benefit from more engaging or precise language.",
+            "Your explanation communicates the basics but lacks some clarity that would strengthen your solution."
+          ]
+        }
+      },
+      ai: {
+        win: {
+          originality: [
+            "The AI solution demonstrates exceptional creativity through unexpected connections and novel concepts.",
+            "The AI approach offers truly innovative ideas that reframe the challenge in interesting ways.",
+            "The AI solution shows remarkable originality through its unconventional perspective on the problem.",
+            "The AI demonstrates creative excellence by combining disparate concepts into a cohesive innovative solution."
+          ],
+          logic: [
+            "The AI solution is logically sound with well-considered implementation details and practical constraints.",
+            "The AI approach demonstrates excellent reasoning with thorough consideration of practical challenges.",
+            "The AI solution provides a comprehensive framework with carefully thought-out implementation strategies.",
+            "The AI presents a solution with robust logical structure and realistic implementation considerations."
+          ],
+          expression: [
+            "The AI presents its solution with exceptional clarity and compelling communication.",
+            "The AI expresses complex ideas with remarkable precision and engaging language.",
+            "The AI articulates its solution through well-structured explanation with effective supporting details.",
+            "The AI communication is outstanding, making complex concepts accessible and interesting."
+          ]
+        },
+        lose: {
+          originality: [
+            "The AI solution presents conventional ideas with some creative elements.",
+            "The AI approach follows familiar patterns with modest innovative aspects.",
+            "The AI solution contains some interesting ideas but lacks truly breakthrough thinking.",
+            "The AI demonstrates standard creative approaches without exceptional originality."
+          ],
+          logic: [
+            "The AI approach addresses basic requirements but lacks some practical considerations.",
+            "The AI solution offers a functional framework though misses some important implementation details.",
+            "The AI presents a logical approach that works but doesn't fully optimize for practical constraints.",
+            "The AI reasoning is sound but incomplete in addressing all practical aspects of implementation."
+          ],
+          expression: [
+            "The AI's communication is functional but lacks engaging elements.",
+            "The AI presents ideas clearly but without the compelling quality of the user's response.",
+            "The AI explanation is structured adequately though lacks the nuance and engagement of superior communication.",
+            "The AI articulates its solution in a straightforward manner but without exceptional clarity or style."
+          ]
+        }
+      },
+      judgment: {
+        userWins: [
+          "The user's solution stood out for its creativity and practical approach. While the AI offered interesting ideas, the user's response was more comprehensive and effectively addressed the challenge.",
+          "The user's solution demonstrated superior innovation and implementation details. The AI presented viable alternatives but didn't match the overall quality of the user's thoughtful response.",
+          "The user's approach combined creativity with practical considerations more effectively than the AI's solution, resulting in a more compelling and feasible proposal.",
+          "Both solutions had merit, but the user's response showed stronger integration of creative thinking with practical implementation, making it the superior solution overall."
+        ],
+        aiWins: [
+          "Both solutions had merit, but the AI's response demonstrated stronger integration of innovative concepts with practical implementation details.",
+          "The AI solution provided more comprehensive consideration of both creative and practical aspects of the challenge, resulting in a more robust proposal.",
+          "While the user presented interesting ideas, the AI's solution offered superior organization, detail, and innovative thinking to address the challenge more effectively.",
+          "The AI response showed exceptional creativity balanced with practical considerations, creating a more compelling and well-developed solution than the user's approach."
+        ]
+      }
+    };
+    
+    // Select random feedback appropriate to the winner
+    const userOriginalityFeedback = userWins 
+      ? feedbackOptions.user.win.originality[Math.floor(Math.random() * feedbackOptions.user.win.originality.length)]
+      : feedbackOptions.user.lose.originality[Math.floor(Math.random() * feedbackOptions.user.lose.originality.length)];
+      
+    const userLogicFeedback = userWins
+      ? feedbackOptions.user.win.logic[Math.floor(Math.random() * feedbackOptions.user.win.logic.length)]
+      : feedbackOptions.user.lose.logic[Math.floor(Math.random() * feedbackOptions.user.lose.logic.length)];
+      
+    const userExpressionFeedback = userWins
+      ? feedbackOptions.user.win.expression[Math.floor(Math.random() * feedbackOptions.user.win.expression.length)]
+      : feedbackOptions.user.lose.expression[Math.floor(Math.random() * feedbackOptions.user.lose.expression.length)];
+      
+    const aiOriginalityFeedback = userWins
+      ? feedbackOptions.ai.lose.originality[Math.floor(Math.random() * feedbackOptions.ai.lose.originality.length)]
+      : feedbackOptions.ai.win.originality[Math.floor(Math.random() * feedbackOptions.ai.win.originality.length)];
+      
+    const aiLogicFeedback = userWins
+      ? feedbackOptions.ai.lose.logic[Math.floor(Math.random() * feedbackOptions.ai.lose.logic.length)]
+      : feedbackOptions.ai.win.logic[Math.floor(Math.random() * feedbackOptions.ai.win.logic.length)];
+      
+    const aiExpressionFeedback = userWins
+      ? feedbackOptions.ai.lose.expression[Math.floor(Math.random() * feedbackOptions.ai.lose.expression.length)]
+      : feedbackOptions.ai.win.expression[Math.floor(Math.random() * feedbackOptions.ai.win.expression.length)];
+      
+    const judgeFeedback = userWins
+      ? feedbackOptions.judgment.userWins[Math.floor(Math.random() * feedbackOptions.judgment.userWins.length)]
+      : feedbackOptions.judgment.aiWins[Math.floor(Math.random() * feedbackOptions.judgment.aiWins.length)];
+    
     return {
       userScore: {
         originality: userOriginalityScore,
         logic: userLogicScore,
         expression: userExpressionScore,
-        originalityFeedback: userWins ? 
-          "Your solution demonstrates creativity and novel thinking that addresses the challenge in unexpected ways." : 
-          "Your solution contains interesting elements, though it follows somewhat predictable patterns.",
-        logicFeedback: userWins ? 
-          "Your approach is well-structured, practical, and addresses the key requirements effectively." : 
-          "Your approach has logical merit but could benefit from more detailed consideration of practical challenges.",
-        expressionFeedback: userWins ? 
-          "Your idea is communicated clearly and engagingly, making the concept easy to understand and appreciate." : 
-          "Your expression is adequate but could be more refined for better clarity and engagement.",
+        originalityFeedback: userOriginalityFeedback,
+        logicFeedback: userLogicFeedback,
+        expressionFeedback: userExpressionFeedback,
         total: userTotal
       },
       aiScore: {
         originality: aiOriginalityScore,
         logic: aiLogicScore,
         expression: aiExpressionScore,
-        originalityFeedback: userWins ? 
-          "The AI solution presents conventional ideas with some creative elements." : 
-          "The AI solution demonstrates originality through unexpected connections and novel concepts.",
-        logicFeedback: userWins ? 
-          "The AI approach addresses basic requirements but lacks some practical considerations." : 
-          "The AI solution is logically sound with well-considered implementation details.",
-        expressionFeedback: userWins ? 
-          "The AI's communication is functional but lacks engaging elements." : 
-          "The AI presents its solution with clarity and compelling communication.",
+        originalityFeedback: aiOriginalityFeedback,
+        logicFeedback: aiLogicFeedback,
+        expressionFeedback: aiExpressionFeedback,
         total: aiTotal
       },
-      judgeFeedback: userWins ? 
-        "The user's solution stood out for its creativity and practical approach. While the AI offered interesting ideas, the user's response was more comprehensive and effectively addressed the challenge." : 
-        "Both solutions had merit, but the AI's response demonstrated stronger integration of innovative concepts with practical implementation details.",
+      judgeFeedback: judgeFeedback,
       winner: userWins ? "user" : "ai"
     };
   }
@@ -365,7 +539,7 @@ export async function evaluateBattle(data: EvaluationRequest): Promise<Evaluatio
     
     const result = JSON.parse(response.choices[0].message.content);
     return result as EvaluationResponse;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error evaluating battle:", error);
     
     // Check for specific error types and handle accordingly
