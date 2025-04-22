@@ -16,17 +16,17 @@ const openai = new OpenAI({
  */
 export async function generatePrompt(): Promise<string> {
   try {
-    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+    // Use GPT-3.5 Turbo instead of GPT-4o to save costs (free tier has more tokens for GPT-3.5)
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-3.5-turbo",
       messages: [
         { 
           role: "system", 
-          content: "You are a creativity coach who creates thought-provoking creative challenges. Generate ONE creative prompt that would make for an interesting 3-minute creativity battle. The prompt should be open-ended enough to allow for multiple approaches but specific enough to provide direction. Don't include any additional text, just the prompt itself." 
+          content: "You are a creativity coach. Generate ONE short creative prompt for a 3-minute creativity battle. Make it open-ended but with direction. Only output the prompt itself, nothing else." 
         }
       ],
       temperature: 0.9,
-      max_tokens: 100
+      max_tokens: 60 // Reduced token count to save on usage
     });
 
     return response.choices[0].message.content.trim();
@@ -66,13 +66,13 @@ export async function generateAIResponse(prompt: string): Promise<string> {
   try {
     console.log("Generating AI response for prompt:", prompt.substring(0, 50) + "...");
     
-    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+    // Use GPT-3.5 Turbo instead of GPT-4o to save costs (free tier has more tokens for GPT-3.5)
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-3.5-turbo",
       messages: [
         { 
           role: "system", 
-          content: "You are a creative problem solver participating in a creativity battle. You will be given a creative prompt and must provide an innovative, logical, and well-expressed solution. Your solution should be original, practical, and clearly communicated. Aim for approximately 150-250 words." 
+          content: "You are a creative problem solver participating in a creativity battle. You will be given a creative prompt and must provide an innovative, logical, and well-expressed solution. Your solution should be original, practical, and clearly communicated. Aim for approximately 150-200 words." 
         },
         {
           role: "user",
@@ -80,7 +80,7 @@ export async function generateAIResponse(prompt: string): Promise<string> {
         }
       ],
       temperature: 0.8,
-      max_tokens: 500
+      max_tokens: 350 // Reduced token count to save on usage
     });
 
     const aiResponse = response.choices[0]?.message?.content?.trim();
@@ -154,19 +154,19 @@ export async function evaluateBattle(data: EvaluationRequest): Promise<Evaluatio
   try {
     console.log("Evaluating battle solutions...");
     
-    // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+    // Use GPT-3.5 Turbo instead of GPT-4o to save costs (free tier has more tokens for GPT-3.5)
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-3.5-turbo",
       messages: [
         { 
           role: "system", 
-          content: `You are an impartial judge in a creativity battle. You'll evaluate two solutions to a creative prompt based on:
+          content: `You are an impartial judge in a creativity battle. Evaluate two solutions to a creative prompt based on:
           
           1. Originality (0-100): Novelty, uniqueness, and innovation
           2. Logic (0-100): Feasibility, practicality, and coherence
           3. Expression (0-100): Clarity, engagement, and communication quality
           
-          Provide detailed feedback for each category for both solutions. Calculate a total score for each participant (sum of the three scores). Determine the winner based on total score. If scores are tied, choose the solution with higher originality.
+          Provide short feedback for each category. Calculate a total score (sum of the three scores). Determine the winner based on total score. If scores are tied, choose the solution with higher originality.
           
           Output your evaluation as a JSON object with this format:
           {
@@ -207,7 +207,7 @@ export async function evaluateBattle(data: EvaluationRequest): Promise<Evaluatio
         }
       ],
       temperature: 0.2,
-      max_tokens: 1000,
+      max_tokens: 700, // Reduced token count to save on usage
       response_format: { type: "json_object" }
     });
 
