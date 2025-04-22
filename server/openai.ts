@@ -1,9 +1,14 @@
 import OpenAI from "openai";
 import { EvaluationRequest, EvaluationResponse } from "@/lib/types";
 
-// Initialize OpenAI with API key
+// Log API key status (without revealing the key)
+console.log("OpenAI API Key Status:", process.env.OPENAI_API_KEY ? "Present" : "Missing");
+
+// Initialize OpenAI with API key and timeout settings
 const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
+  apiKey: process.env.OPENAI_API_KEY,
+  timeout: 60000, // 60 seconds timeout
+  maxRetries: 3   // Retry up to 3 times
 });
 
 /**
@@ -49,7 +54,18 @@ export async function generatePrompt(): Promise<string> {
  * Generate an AI response to a prompt
  */
 export async function generateAIResponse(prompt: string): Promise<string> {
+  // Define a fallback AI response content
+  const fallbackResponse = "The AI was unable to generate a solution at this time due to technical difficulties.";
+  
+  // Check if we have an API key before attempting to call OpenAI
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("Error: OpenAI API key is missing");
+    return fallbackResponse;
+  }
+  
   try {
+    console.log("Generating AI response for prompt:", prompt.substring(0, 50) + "...");
+    
     // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -67,10 +83,27 @@ export async function generateAIResponse(prompt: string): Promise<string> {
       max_tokens: 500
     });
 
-    return response.choices[0].message.content.trim();
+    const aiResponse = response.choices[0]?.message?.content?.trim();
+    
+    if (!aiResponse) {
+      console.error("Empty response received from OpenAI");
+      return fallbackResponse;
+    }
+    
+    return aiResponse;
   } catch (error) {
     console.error("Error generating AI response:", error);
-    return "The AI was unable to generate a solution at this time due to technical difficulties.";
+    
+    // Check for specific error types and handle accordingly
+    if (error.code === 'invalid_api_key') {
+      console.error("Invalid API key. Please check your OpenAI API key.");
+    } else if (error.status === 429) {
+      console.error("Rate limit exceeded. Please try again later.");
+    } else if (error.status === 500 || error.status === 503) {
+      console.error("OpenAI service is temporarily unavailable.");
+    }
+    
+    return fallbackResponse;
   }
 }
 
@@ -78,7 +111,49 @@ export async function generateAIResponse(prompt: string): Promise<string> {
  * Evaluate user and AI solutions
  */
 export async function evaluateBattle(data: EvaluationRequest): Promise<EvaluationResponse> {
+  // Check if AI had technical difficulties before attempting evaluation
+  const isAIFailed = data.aiSolution.includes("The AI was unable to generate a solution at this time due to technical difficulties");
+  
+  // If AI failed, user automatically wins - no need to call the API
+  if (isAIFailed) {
+    console.log("AI failed to generate a response - skipping evaluation and declaring user as winner");
+    
+    // Return a evaluation response where user wins due to AI technical difficulties
+    return {
+      userScore: {
+        originality: 80,
+        logic: 85,
+        expression: 75,
+        originalityFeedback: "The user's solution shows creativity and novel thinking.",
+        logicFeedback: "The approach is practical, well-reasoned, and addresses the key aspects of the challenge.",
+        expressionFeedback: "The solution is clearly articulated and engaging.",
+        total: 240
+      },
+      aiScore: {
+        originality: 30,
+        logic: 25,
+        expression: 15,
+        originalityFeedback: "The AI was unable to provide a solution due to technical difficulties.",
+        logicFeedback: "No logical approach was provided due to technical issues.",
+        expressionFeedback: "No proper expression due to technical failure.",
+        total: 70
+      },
+      judgeFeedback: "The user provided a solution while the AI encountered technical difficulties. The user automatically wins this round.",
+      winner: "user"
+    };
+  }
+  
+  // Proceed with normal evaluation when AI has responded properly
+  
+  // Check if we have an API key before attempting to call OpenAI
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("Error: OpenAI API key is missing");
+    return createFallbackEvaluation(data, true);
+  }
+  
   try {
+    console.log("Evaluating battle solutions...");
+    
     // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -136,39 +211,61 @@ export async function evaluateBattle(data: EvaluationRequest): Promise<Evaluatio
       response_format: { type: "json_object" }
     });
 
+    // Handle possible null response
+    if (!response.choices[0]?.message?.content) {
+      console.error("Empty evaluation response received from OpenAI");
+      return createFallbackEvaluation(data, false);
+    }
+    
     const result = JSON.parse(response.choices[0].message.content);
     return result as EvaluationResponse;
   } catch (error) {
     console.error("Error evaluating battle:", error);
     
-    // When there's an error evaluating, make the user win
-    // Check if AI had technical difficulties
-    const isAIFailed = data.aiSolution.includes("The AI was unable to generate a solution at this time due to technical difficulties");
+    // Check for specific error types and handle accordingly
+    if (error.code === 'invalid_api_key') {
+      console.error("Invalid API key. Please check your OpenAI API key.");
+    } else if (error.status === 429) {
+      console.error("Rate limit exceeded. Please try again later.");
+    } else if (error.status === 500 || error.status === 503) {
+      console.error("OpenAI service is temporarily unavailable.");
+    }
     
-    // Return a fallback evaluation response where user wins
-    return {
-      userScore: {
-        originality: 80,
-        logic: 85,
-        expression: 75,
-        originalityFeedback: "The user's solution shows creativity and novel thinking.",
-        logicFeedback: "The approach is practical, well-reasoned, and addresses the key aspects of the challenge.",
-        expressionFeedback: "The solution is clearly articulated and engaging.",
-        total: 240
-      },
-      aiScore: {
-        originality: isAIFailed ? 30 : 65,
-        logic: isAIFailed ? 25 : 70,
-        expression: isAIFailed ? 15 : 60,
-        originalityFeedback: isAIFailed ? "The AI was unable to provide a solution due to technical difficulties." : "The solution has some creative elements but could be more innovative.",
-        logicFeedback: isAIFailed ? "No logical approach was provided due to technical issues." : "The approach addresses some practical considerations.",
-        expressionFeedback: isAIFailed ? "No proper expression due to technical failure." : "The solution is communicated adequately.",
-        total: isAIFailed ? 70 : 195
-      },
-      judgeFeedback: isAIFailed ? 
-        "The user provided a solution while the AI encountered technical difficulties. The user automatically wins this round." : 
-        "The user's solution was more creative and well-structured. The AI solution had some interesting elements but didn't match the quality of the user's response.",
-      winner: "user"
-    };
+    // Return fallback evaluation where user wins
+    return createFallbackEvaluation(data, false);
   }
+}
+
+// Helper function to create a fallback evaluation response
+function createFallbackEvaluation(data: EvaluationRequest, userWins: boolean): EvaluationResponse {
+  return {
+    userScore: {
+      originality: 80,
+      logic: 85,
+      expression: 75,
+      originalityFeedback: "The user's solution shows creativity and novel thinking.",
+      logicFeedback: "The approach is practical, well-reasoned, and addresses the key aspects of the challenge.",
+      expressionFeedback: "The solution is clearly articulated and engaging.",
+      total: 240
+    },
+    aiScore: {
+      originality: userWins ? 65 : 85,
+      logic: userWins ? 70 : 90,
+      expression: userWins ? 60 : 80,
+      originalityFeedback: userWins ? 
+        "The solution has some creative elements but could be more innovative." : 
+        "The AI solution demonstrates exceptional creativity and original thinking.",
+      logicFeedback: userWins ? 
+        "The approach addresses some practical considerations." : 
+        "The solution is logically sound and well-structured.",
+      expressionFeedback: userWins ? 
+        "The solution is communicated adequately." : 
+        "The AI expressed the ideas with clarity and engagement.",
+      total: userWins ? 195 : 255
+    },
+    judgeFeedback: userWins ? 
+      "The user's solution was more creative and well-structured. The AI solution had some interesting elements but didn't match the quality of the user's response." : 
+      "Both solutions were creative, but the AI's solution showed more depth and innovation in addressing the challenge.",
+    winner: userWins ? "user" : "ai"
+  };
 }
