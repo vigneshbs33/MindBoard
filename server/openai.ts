@@ -55,7 +55,7 @@ export async function generatePrompt(): Promise<string> {
  */
 export async function generateAIResponse(prompt: string): Promise<string> {
   // Define a fallback AI response content
-  const fallbackResponse = "The AI was unable to generate a solution at this time due to technical difficulties.";
+  const fallbackResponse = "The AI was unable to generate a solution at this time due to technical difficulties. According to the rules, when AI fails to generate a response, the user automatically wins this round.";
   
   // Check if we have an API key before attempting to call OpenAI
   if (!process.env.OPENAI_API_KEY) {
