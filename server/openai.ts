@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { EvaluationRequest, EvaluationResponse } from "@/lib/types";
 
 // Set this to true to force the app to work without making any API calls
-// This ensures the app will function with no quota issues
+// Set this to false to use the API with minimal token usage
 const FORCE_OFFLINE_MODE = true;
 
 // Log API key status (without revealing the key)
@@ -52,16 +52,17 @@ export async function generatePrompt(): Promise<string> {
   
   try {
     // Use GPT-3.5 Turbo instead of GPT-4o to save costs (free tier has more tokens for GPT-3.5)
+    // Minimizing prompt size and token usage
     const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-3.5-turbo", 
       messages: [
         { 
           role: "system", 
-          content: "You are a creativity coach. Generate ONE short creative prompt for a 3-minute creativity battle. Make it open-ended but with direction. Only output the prompt itself, nothing else." 
+          content: "Generate ONE creative prompt (maximum 15 words). Only output the prompt." 
         }
       ],
-      temperature: 0.9,
-      max_tokens: 60 // Reduced token count to save on usage
+      temperature: 0.7,
+      max_tokens: 30 // Minimized token count to maximize free tier usage
     });
 
     return response.choices[0]?.message?.content?.trim() || fallbackPrompts[Math.floor(Math.random() * fallbackPrompts.length)];
@@ -184,21 +185,21 @@ export async function generateAIResponse(prompt: string): Promise<string> {
   try {
     console.log("Generating AI response for prompt:", prompt.substring(0, 50) + "...");
     
-    // Use GPT-3.5 Turbo instead of GPT-4o to save costs (free tier has more tokens for GPT-3.5)
+    // Use GPT-3.5 Turbo with minimal prompt and token usage to maximize free credits
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         { 
           role: "system", 
-          content: "You are a creative problem solver participating in a creativity battle. You will be given a creative prompt and must provide an innovative, logical, and well-expressed solution. Your solution should be original, practical, and clearly communicated. Aim for approximately 150-200 words." 
+          content: "Be creative. Write a brief solution (120-150 words) to the prompt. Be original and practical." 
         },
         {
           role: "user",
-          content: `Creative challenge: ${prompt}`
+          content: prompt
         }
       ],
-      temperature: 0.8,
-      max_tokens: 350 // Reduced token count to save on usage
+      temperature: 0.7,
+      max_tokens: 200 // Significantly reduced token count to maximize free tier usage
     });
 
     const aiResponse = response.choices[0]?.message?.content?.trim();
@@ -472,62 +473,27 @@ export async function evaluateBattle(data: EvaluationRequest): Promise<Evaluatio
   }
   
   try {
-    console.log("Evaluating battle solutions...");
+    console.log("Evaluating battle with minimal token usage...");
     
-    // Use GPT-3.5 Turbo instead of GPT-4o to save costs (free tier has more tokens for GPT-3.5)
+    // Use minimal prompt to save tokens
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
         { 
           role: "system", 
-          content: `You are an impartial judge in a creativity battle. Evaluate two solutions to a creative prompt based on:
-          
-          1. Originality (0-100): Novelty, uniqueness, and innovation
-          2. Logic (0-100): Feasibility, practicality, and coherence
-          3. Expression (0-100): Clarity, engagement, and communication quality
-          
-          Provide short feedback for each category. Calculate a total score (sum of the three scores). Determine the winner based on total score. If scores are tied, choose the solution with higher originality.
-          
-          Output your evaluation as a JSON object with this format:
-          {
-            "userScore": {
-              "originality": number,
-              "logic": number,
-              "expression": number,
-              "originalityFeedback": string,
-              "logicFeedback": string,
-              "expressionFeedback": string,
-              "total": number
-            },
-            "aiScore": {
-              "originality": number,
-              "logic": number,
-              "expression": number,
-              "originalityFeedback": string,
-              "logicFeedback": string,
-              "expressionFeedback": string,
-              "total": number
-            },
-            "judgeFeedback": string,
-            "winner": "user" or "ai"
-          }`
+          content: `Rate two creative solutions. For each, score:
+          1. Originality (0-100)
+          2. Logic (0-100)
+          3. Expression (0-100)
+          Add brief feedback for each category. Calculate total score. Higher score wins. Output JSON only.`
         },
         {
           role: "user",
-          content: `
-          Prompt: ${data.prompt}
-          
-          User solution:
-          ${data.userSolution}
-          
-          AI solution:
-          ${data.aiSolution}
-          
-          Please evaluate both solutions fairly and provide your judgment.`
+          content: `Prompt: ${data.prompt}\nUser: ${data.userSolution}\nAI: ${data.aiSolution}`
         }
       ],
       temperature: 0.2,
-      max_tokens: 700, // Reduced token count to save on usage
+      max_tokens: 400, // Minimized token count
       response_format: { type: "json_object" }
     });
 
